@@ -1,0 +1,4 @@
+- JOB: "intercept -g $DEVNODE | capstoesc | rightctrltosuper | menutosuper | enter+rightctrl | uinput -d $DEVNODE"
+  DEVICE:
+    EVENTS:
+      EV_KEY: [KEY_CAPSLOCK, KEY_ESC, KEY_RIGHTCTRL, KEY_RIGHTMETA, KEY_MENU, KEY_ENTER]

@@ -1,0 +1,271 @@
+snippet arxivart "Arxiv Article" b
+\documentclass[${1:11pt}]{${2:article}}
+
+%Ensures arXiv compiles via pdflatex
+\pdfoutput=1
+
+%Packages and macros
+\usepackage{`!p snip.rv = snip.basename`}
+
+%bibliography
+\bibliography{`!p snip.rv = snip.basename + '_refs'`}
+
+\begin{document}
+
+\title{$3}
+\author{Tom Mainiero\thanks{tom.mainiero@rutgers.edu or mainiero@physics.utexas.edu}}
+\affil{New High Energy Theory Center, Rutgers University, Piscataway, NJ 08854, USA}
+\date{}
+
+\maketitle
+
+\tableofcontents
+
+$0
+
+\printbibliography
+
+\end{document}
+endsnippet
+
+
+snippet notestc "Notes with tcolorbox theorems" b
+\documentclass[${1:11pt}]{${2:article}}
+
+\pdfoutput=1
+
+%Packages
+	\usepackage{fullpage}
+	\usepackage{amsmath,amsfonts,amssymb,amstext,amsgen,amsopn,amsthm}
+	\usepackage{graphicx,abstract,url,caption,color}
+	\usepackage{mathtools}
+	\usepackage[all,cmtip]{xy}
+	\usepackage{calc}
+	\usepackage{authblk}
+	
+	%For colored theorem environments (declaretheoremstyle)
+	\usepackage[theorems,many]{tcolorbox}
+
+	%Bibliography
+	\usepackage[backend=bibtex,sorting=none,giveninits=true,backref=true]{biblatex}
+	
+	%Bold math symbols
+		\usepackage{amsbsy}
+		\usepackage{bbm}
+	
+	%Extra Calligraphics
+		\usepackage{mathrsfs}
+		\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+	%Other useful macros
+		\usepackage{braket}
+		\usepackage{cancel} %crossed out symbols
+		\usepackage{blkarray} %Block array
+		\usepackage{tensor} %Offset indices
+	
+	%Tikz
+		\usepackage{tikz}
+		\usetikzlibrary{matrix,calc,decorations.pathmorphing,decorations.pathreplacing,decorations.markings,shapes,backgrounds,positioning,arrows,shadows}
+
+		%Hyperref settings (place at end of loaded packages)
+		\definecolor{bluish}{RGB}{0,76,153}
+		\usepackage{hyperref}
+
+		\hypersetup{
+			% hyperindex = true,
+			breaklinks = true,
+			colorlinks = true,
+			citecolor  = gray,
+			urlcolor   = bluish
+	}
+
+%Theorem environments
+	%Colors
+%		\definecolor{defcolor}{RGB}{230,230,255}
+		\definecolor{defcolor}{RGB}{224,224,224}
+		\definecolor{rmkcolor}{RGB}{224,224,224}
+		\definecolor{thmcolor}{RGB}{255,124,124}
+		\definecolor{lemcolor}{RGB}{255,204,204}
+		\definecolor{propcolor}{RGB}{255,204,204}
+		\definecolor{corcolor}{RGB}{255,204,204}
+		\definecolor{conjcolor}{RGB}{255,204,204}
+		
+	%Colored Environments 
+    %Breakable Option allows for breaking of boxes; enhanced does this breaking without strange borders		
+		\newtcbtheorem[number within=section]{theorem}{Theorem}{colback=white,colframe=thmcolor,coltitle=black,fonttitle=\bfseries,after=,}{thm}
+		\newtcbtheorem[number within=section]{definition}{Definition}{breakable,enhanced,colback=white,colframe=defcolor,coltitle=black,fonttitle=\bfseries,after=}{def}
+		\newtcbtheorem[number within=section]{notation}{Notation}{colback=white,colframe=defcolor,coltitle=black,fonttitle=\bfseries,after=}{def}
+		\newtcbtheorem[number within=section]{lemma}{Lemma}{colback=white,colframe=lemcolor,coltitle=black,fonttitle=\bfseries,after=}{lem}
+		\newtcbtheorem[number within=section]{corollary}{Corollary}{colback=white,colframe=corcolor,coltitle=black,fonttitle=\bfseries,after=}{cor}
+		\newtcbtheorem[number within=section]{proposition}{Proposition}{colback=white,colframe=propcolor,coltitle=black,fonttitle=\bfseries,after=}{prop}
+		\newtcbtheorem[number within=section]{remark}{Remark}{breakable,enhanced,colback=white,colframe=rmkcolor,coltitle=black,fonttitle=\bfseries,after=}{rmk}
+		\newtcbtheorem[number within=section]{example}{Example}{breakable,enhanced,colback=white,colframe=rmkcolor,coltitle=black,fonttitle=\bfseries,after=}{ex}
+		\newtcbtheorem[number within=section]{conjecture}{Conjecture}{colback=white,colframe=conjcolor,coltitle=black,fonttitle=\bfseries,after=}{conj}
+
+%Command for labeling list items
+	\makeatletter
+	\newcommand{\labitem}[2]{%
+	\def\@itemlabel{#1:}
+	\item
+	\def\@currentlabel{#1}\label{#2}}
+	\makeatother
+
+%Hooked long right/left arrows
+\newcommand{\hooklongrightarrow}{\lhook\joinrel\longrightarrow}
+\newcommand{\hooklongleftarrow}{\longleftarrow\joinrel\rhook}
+
+%Common Macros
+	
+	%Style synonyms
+	\newcommand*{\msf}[1]{\mathsf{#1}}
+	\newcommand*{\mcal}[1]{\mathcal{#1}}
+	\newcommand*{\hilb}[1]{\mathcal{#1}}
+	
+	\newcommand*{\catname}[1]{\operatorname{\mathbf{#1}}}
+	\newcommand{\op}{\mathrm{op}}
+	\newcommand*{\catnameop}[1]{\operatorname{\mathbf{#1}^{\mathrm{op}}}}
+
+	\newcommand*{\newword}[1]{\textcolor{blue}{\textit{#1}}}
+	\newcommand*{\newmath}[1]{\textcolor{blue}{#1}}
+	
+	%Math Macros
+	\newcommand{\End}{\operatorname{End}}
+	\newcommand{\Aut}{\operatorname{Aut}}
+	\newcommand{\Hom}{\operatorname{Hom}}
+	\newcommand{\Tr}{\operatorname{Tr}} \newcommand{\image}{\operatorname{image}} \newcommand{\rank}{\operatorname{rank}}
+	\newcommand{\coker}{\operatorname{coker}}
+	\newcommand*{\twid}[1]{\widetilde{#1}}
+
+	%Common calligraphic letters
+	\newcommand{\cH}{\mathcal{H}}
+	\newcommand{\cA}{\mathcal{A}}
+	\newcommand{\cK}{\mathcal{K}}
+	\newcommand{\cF}{\mathcal{F}}
+	\newcommand{\cR}{\mathcal{R}}
+\begin{document}
+
+\title{$2}
+\author{Tom Mainiero\thanks{tom.mainiero@rutgers.edu or mainiero@physics.utexas.edu}}
+\date{}
+
+\maketitle
+
+\tableofcontents
+
+$0
+
+\end{document}
+endsnippet
+
+snippet tcolorbox 
+%Packages
+	\usepackage{fullpage}
+	\usepackage{amsmath,amsfonts,amssymb,amstext,amsgen,amsopn,amsthm}
+	\usepackage{graphicx,abstract,url,caption,color}
+	\usepackage{mathtools}
+	\usepackage[all,cmtip]{xy}
+	\usepackage{calc}
+	\usepackage{authblk}
+	
+	%For colored theorem environments (declaretheoremstyle)
+	\usepackage[theorems,many]{tcolorbox}
+
+	%Bibliography
+	\usepackage[backend=bibtex,sorting=none,giveninits=true,backref=true]{biblatex}
+	
+	%Bold math symbols
+		\usepackage{amsbsy}
+		\usepackage{bbm}
+	
+	%Extra Calligraphics
+		\usepackage{mathrsfs}
+		\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+	%Other useful macros
+		\usepackage{braket}
+		\usepackage{cancel} %crossed out symbols
+		\usepackage{blkarray} %Block array
+		\usepackage{tensor} %Offset indices
+	
+	%Tikz
+		\usepackage{tikz}
+		\usetikzlibrary{matrix,calc,decorations.pathmorphing,decorations.pathreplacing,decorations.markings,shapes,backgrounds,positioning,arrows,shadows}
+
+		%Hyperref settings (place at end of loaded packages)
+		\definecolor{bluish}{RGB}{0,76,153}
+		\usepackage{hyperref}
+
+		\hypersetup{
+			% hyperindex = true,
+			breaklinks = true,
+			colorlinks = true,
+			citecolor  = gray,
+			urlcolor   = bluish
+	}
+
+%Theorem environments
+	%Colors
+%		\definecolor{defcolor}{RGB}{230,230,255}
+		\definecolor{defcolor}{RGB}{224,224,224}
+		\definecolor{rmkcolor}{RGB}{224,224,224}
+		\definecolor{thmcolor}{RGB}{255,124,124}
+		\definecolor{lemcolor}{RGB}{255,204,204}
+		\definecolor{propcolor}{RGB}{255,204,204}
+		\definecolor{corcolor}{RGB}{255,204,204}
+		\definecolor{conjcolor}{RGB}{255,204,204}
+		
+	%Colored Environments 
+    %Breakable Option allows for breaking of boxes; enhanced does this breaking without strange borders		
+		\newtcbtheorem[number within=section]{theorem}{Theorem}{colback=white,colframe=thmcolor,coltitle=black,fonttitle=\bfseries,after=,}{thm}
+		\newtcbtheorem[number within=section]{definition}{Definition}{breakable,enhanced,colback=white,colframe=defcolor,coltitle=black,fonttitle=\bfseries,after=}{def}
+		\newtcbtheorem[number within=section]{notation}{Notation}{colback=white,colframe=defcolor,coltitle=black,fonttitle=\bfseries,after=}{def}
+		\newtcbtheorem[number within=section]{lemma}{Lemma}{colback=white,colframe=lemcolor,coltitle=black,fonttitle=\bfseries,after=}{lem}
+		\newtcbtheorem[number within=section]{corollary}{Corollary}{colback=white,colframe=corcolor,coltitle=black,fonttitle=\bfseries,after=}{cor}
+		\newtcbtheorem[number within=section]{proposition}{Proposition}{colback=white,colframe=propcolor,coltitle=black,fonttitle=\bfseries,after=}{prop}
+		\newtcbtheorem[number within=section]{remark}{Remark}{breakable,enhanced,colback=white,colframe=rmkcolor,coltitle=black,fonttitle=\bfseries,after=}{rmk}
+		\newtcbtheorem[number within=section]{example}{Example}{breakable,enhanced,colback=white,colframe=rmkcolor,coltitle=black,fonttitle=\bfseries,after=}{ex}
+		\newtcbtheorem[number within=section]{conjecture}{Conjecture}{colback=white,colframe=conjcolor,coltitle=black,fonttitle=\bfseries,after=}{conj}
+
+%Command for labeling list items
+	\makeatletter
+	\newcommand{\labitem}[2]{%
+	\def\@itemlabel{#1:}
+	\item
+	\def\@currentlabel{#1}\label{#2}}
+	\makeatother
+
+%Hooked long right/left arrows
+\newcommand{\hooklongrightarrow}{\lhook\joinrel\longrightarrow}
+\newcommand{\hooklongleftarrow}{\longleftarrow\joinrel\rhook}
+
+%Common Macros
+	
+	%Style synonyms
+	\newcommand*{\msf}[1]{\mathsf{#1}}
+	\newcommand*{\mcal}[1]{\mathcal{#1}}
+	\newcommand*{\hilb}[1]{\mathcal{#1}}
+	
+	\newcommand*{\catname}[1]{\operatorname{\mathbf{#1}}}
+	\newcommand{\op}{\mathrm{op}}
+	\newcommand*{\catnameop}[1]{\operatorname{\mathbf{#1}^{\mathrm{op}}}}
+
+	\newcommand{\newword}[1]{\textcolor{blue}{\textit{#1}}}
+	\newcommand{\newmath}[1]{\textcolor{blue}{#1}}
+	
+	%Math Macros
+	\newcommand{\End}{\operatorname{End}}
+	\newcommand{\Aut}{\operatorname{Aut}}
+	\newcommand{\Hom}{\operatorname{Hom}}
+	\newcommand{\Tr}{\operatorname{Tr}}
+	\newcommand{\image}{\operatorname{image}}
+	\newcommand{\rank}{\operatorname{rank}}
+	\newcommand{\coker}{\operatorname{coker}}
+	\newcommand{\twid}[1]{\widetilde{#1}}
+
+	%Common calligraphic letters
+	\newcommand{\cH}{\mathcal{H}}
+	\newcommand{\cA}{\mathcal{A}}
+	\newcommand{\cK}{\mathcal{K}}
+	\newcommand{\cF}{\mathcal{F}}
+	\newcommand{\cR}{\mathcal{R}}
+endsnippet

@@ -1,0 +1,104 @@
+# ===The following is stolen and modified from vim-snippets texmath.snippets
+
+# priority -50
+
+##############
+# MATH STUFF #
+##############
+
+# snippet eqnn "Equation without a number" b
+# \begin{equation*}
+# 	${0:${VISUAL}}
+# \end{equation*}
+# endsnippet
+
+
+snippet eq "Equation without a number" b
+\begin{equation*}
+	${0:${VISUAL}}
+\end{equation*}
+endsnippet
+
+
+snippet eqn "Equation with a number" b
+\begin{equation}
+	${0:${VISUAL}}
+\end{equation}
+endsnippet
+
+snippet aln "Numbered Align" b
+\begin{align}
+	${1:${VISUAL}}
+	\label{eq:${2:label}}
+\end{align}
+$0
+endsnippet
+
+snippet al "Align without a number" b
+\begin{align*}
+	${1:${VISUAL}}
+\end{align*}
+$0
+endsnippet
+
+snippet eqa "Equation array without a number" b
+\begin{eqnarray*}
+	${1:${VISUAL}} & ${2:${VISUAL}} & ${0:${VISUAL}}
+\end{eqnarray*}
+endsnippet
+
+snippet eqan "Numbered Equation array" b
+\begin{eqnarray}
+	${1:${VISUAL}} & ${2:${VISUAL}} & ${0:${VISUAL}}
+	\label{eq:${2:label}}
+\end{eqnarray}
+endsnippet
+
+snippet thmtc "tcolorbox theorem" b
+\begin{theorem}[label=thm:${1:label}]{}{${2:name}}
+	$3
+\end{theorem}
+$0
+endsnippet
+
+snippet lemtc "tcolorbox lemma" b
+\begin{lemma}[label=thm:${1:label}]{}{${2:name}}
+	$3
+\end{lemma}
+$0
+endsnippet
+
+snippet proptc "tcolorbox proposition" b
+\begin{proposition}[label=thm:${1:label}]{}{${2:name}}
+	$3
+\end{proposition}
+$0
+endsnippet
+
+
+# snippet tcthm "Unlabelled tcolorbox theorem" b
+# \begin{theorem}{}{}
+# 	$1
+# \end{theorem}
+# $0
+# endsnippet
+
+#################
+# PHYSICS STUFF #
+#################
+
+snippet dv "Derivative" w
+\dv[${1:${VISUAL}}]{${2}}{${3}}
+endsnippet
+
+snippet pdv "Partial Derivative" w
+\pdv[${1:${VISUAL}}]{${2}}{${3}}
+endsnippet
+
+snippet SI "SI-Unit" w
+\SI{${1:${VISUAL}}}{${2}}
+endsnippet
+
+# vim:ft=snippets:
+
+# ===

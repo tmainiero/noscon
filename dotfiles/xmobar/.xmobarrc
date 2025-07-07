@@ -1,0 +1,92 @@
+-- vim: set ft=haskell:
+
+Config { font            = "Fira Code Nerd Font Mono 12"
+       , additionalFonts = ["Font Awesome 12"
+						   , "Fira Code Nerd Font Mono 16"
+						   , "Fira Code Nerd Font Propo 18" -- For haskell icon 
+						   ]
+        -- appearance
+       , borderColor = "#282c34"
+       , border      = TopB
+       -- , bgColor     = "black"
+       -- , fgColor     = "#8b0000"
+       , bgColor      = "#282c34"
+       , fgColor      = "#ff6c6b"
+       -- , alpha       = 180
+       , position    = TopSize L 100 25
+       -- , position    = TopW L 94 --accomadate for fixed width trayer (6 pixels)
+        --general behavior
+       , lowerOnStart     = True  -- send to bottom of window stack on start
+       , hideOnStart      = False -- start with window unmapped
+       , allDesktops      = True  -- show on all desktops
+       , overrideRedirect = True  -- set the Override Redirect flag (Xlib)
+       , pickBroadest     = False -- choose widest display (multi-monitor)
+       , persistent       = True  -- enable/disable hiding
+       , iconRoot = "./icons/"
+       -- , iconOffset= -1
+       , commands = [ Run Cpu [ "--template" , "<fn=1>\xf2db</fn>: <total>%"
+                               , "--Low"     , "10"
+                               , "--High"    , "50"
+                               , "--low"     , "#994040"
+                               , "--normal"  , "#ff6c6b"
+                               , "--high"    , "white"
+                               ] 15
+                    , Run Memory [  "--template" , "<fn=1>\xf538</fn>: <usedratio>%"
+                                  , "--Low"      , "20"        -- units: %
+                                  , "--High"     , "80"        -- units: %
+                                  , "--low"      , "#994040"
+                                  , "--normal"   , "#ff6c6b"
+                                  , "--high"     , "white"
+                                 ] 20
+                    , Run Date "%a %b %_d %H:%M" "date" 10
+                    , Run Battery [ "--template" , "<fn=1>\xf0e7</fn>: <acstatus>"
+                                  , "--Low"      , "10"        -- units: %
+                                  , "--High"     , "70"        -- units: %
+                                  , "--low"      , "white"
+                                  , "--normal"   , "#ff6c6b"
+                                  , "--high"     , "#994040"
+                                  , "--" -- battery specific options
+                                            -- discharging status
+                                            , "-o" , "<left>% <fc=gray><fn=1>\xf146</fn></fc>"
+                                            -- AC "on" status
+                                            , "-O" , "<left>% <fc=#ff6c6b><fn=1>\xf0fe</fn></fc>"
+                                            -- charged status
+                                            , "-i" , "<fc=#994040><fn=1>\xf14a</fn></fc>"
+                                  ] 80
+                   -- network monitor
+                    , Run DynNetwork [ "--template" , "▲ <tx> kB/s ▼ <rx> kB/s"
+                                      , "--Low"      , "10000"       -- units: kB/s
+                                      , "--High"     , "50000"       -- units: kB/s
+                                      , "--low"      , "#994040"
+                                      , "--normal"   , "#ff6c6b"
+                                      , "--high"     , "white"
+                                      ] 15
+                    -- , Run Com "my_script.sh" [] "wifi" 50
+                    , Run XPropertyLog "_XMONAD_TRAYPAD"
+                    , Run StdinReader
+                    ]
+                    , sepChar = "%"
+                    , alignSep = "}{"
+					, template = " <fn=3><fc=#666666>󰲒</fc></fn> %StdinReader%} <fn=3><fc=#666666></fc></fn> {%dynnetwork% <fc=#666666>|</fc> %cpu% <fc=#666666>|</fc> %memory% <fc=#666666>|</fc> %battery% <fc=#666666>|</fc> <fn=1><fc=#ee8a00>%date%</fc></fn>  %_XMONAD_TRAYPAD%"
+       }
+       }
+-- Nixos icon: 
+
+
+---------------------------
+--  xmobar.hs migration  --
+---------------------------
+-- need to change build to recompile xmobar.hs with dynamic flag
+
+-- For migration to xmobar.hs see https://github.com/AtifChy/xmonad/blob/main/src/xmobar.hs
+-- myTemplate = let temp = ["<icon=haskell_20_mod.xpm/> %StdinReader%} <fc=#ee8a00>%date%</fc> {%wifi% : %dynnetwork%" , "%cpu% , %memory%", "%battery%"]
+--                  separator = "<fc=#666666> | </fc>"
+--              in concat $ Data.List.intersperse separator temp
+
+-- fontAwesome :: String -> String
+-- fontAwesome x = "<span font_desc='FontAwesome'>" ++ x ++ "</span>"
+
+-- batStr = fontAwesome "\x1f50b" ++ "<acstatus>"
+
+-- References
+-- https://github.com/tsantero/xmonad/blob/master/xmobar.hs

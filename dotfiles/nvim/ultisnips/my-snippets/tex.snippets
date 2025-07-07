@@ -1,0 +1,1039 @@
+# ====The following is stolen from vim-snippets' tex.snippets file
+
+# priority -50
+
+extends texmath
+
+extends textemplates
+
+global !p
+
+def create_table(snip):
+	rows = snip.buffer[snip.line].split('x')[0]
+	cols = snip.buffer[snip.line].split('x')[1]
+
+	int_val = lambda string: int(''.join(s for s in string if s.isdigit()))
+	
+	rows = int_val(rows)
+	cols = int_val(cols)
+
+	offset = cols + 1
+	old_spacing = snip.buffer[snip.line][:snip.buffer[snip.line].rfind('\t') + 1]
+	
+	snip.buffer[snip.line] = ''
+	
+	final_str = old_spacing + "\\begin{tabular}{|" + "|".join(['$' + str(i + 1) for i in range(cols)]) + "|}\n"
+
+	for i in range(rows):
+		final_str += old_spacing + '\t'
+		final_str += " & ".join(['$' + str(i * cols + j + offset) for j in range(cols)])
+
+		final_str += " \\\\\\\n"
+
+	final_str += old_spacing + "\\end{tabular}\n$0"
+
+	snip.expand_anon(final_str)
+
+def add_row(snip):
+	row_len = int(''.join(s for s in snip.buffer[snip.line] if s.isdigit()))
+	old_spacing = snip.buffer[snip.line][:snip.buffer[snip.line].rfind('\t') + 1]
+
+	snip.buffer[snip.line] = ''
+	
+	final_str = old_spacing
+	final_str += " & ".join(['$' + str(j + 1) for j in range(row_len)])
+	final_str += " \\\\\\"
+
+	snip.expand_anon(final_str)
+
+endglobal
+
+# https://vi.stackexchange.com/questions/17439/easiest-way-to-insert-latex-matrix
+# bmatrix/pmatrix/etc. have maximum sizes: it would be best to fix this
+global !p
+
+def create_matrix(snip):
+
+        matrix_str = (snip.buffer[snip.line].split('mat')[0]+'matrix').strip()
+
+        rows = 'x'.join(snip.buffer[snip.line].split("x", 2)[:-1])
+        cols = 'x'.join(snip.buffer[snip.line].split("x", 2)[-1:])
+
+        int_val = lambda string: int(''.join(s for s in string if s.isdigit()))
+
+        rows = int_val(rows)
+        cols = int_val(cols)
+
+        offset = cols + 1
+        old_spacing = snip.buffer[snip.line][:snip.buffer[snip.line].rfind('\t') + 1]
+
+        snip.buffer[snip.line] = ''
+
+        final_str = old_spacing + "\\begin{"+matrix_str+"}\n"
+
+        for i in range(rows):
+                final_str += old_spacing + '\t'
+                final_str += " & ".join(['$' + str(i * cols + j + offset) for j in range(cols)])
+
+                final_str += " \\\\\\\n"
+
+        final_str += old_spacing + "\\end{"+matrix_str+"}\n$0"
+
+        snip.expand_anon(final_str)
+
+endglobal
+
+
+# Boolean that detects if cursor is currently in math-mode (excluding things in a '\text' field) 
+# c.f.  https://vi.stackexchange.com/questions/18490/ultisnips-context-and-tex
+
+# https://github.com/gillescastel/latex-snippets/blob/master/tex.snippets
+
+# https://github.com/lervag/vimtex/issues/1863: syntax naming update using vimtex
+
+global !p
+
+ # texMathZoneCustomMathZone is a custom-defined syntax group in after/syntax/tex.vim
+texMathZones = ['texMathZone' + x for x in ['', 'X', 'XX', 'Env', 'EnvStarred', 'Ensured', 'CustomMathZone', 'TI']]
+
+texIgnoreMathZones = ['texMathTextArg']
+
+texMathZoneIds = vim.eval('map('+str(texMathZones)+", 'hlID(v:val)')")
+
+texIgnoreMathZones = ['texMathTextArg']
+
+texIgnoreMathZoneIds = vim.eval('map('+str(texIgnoreMathZones)+", 'hlID(v:val)')")
+
+ignore = texIgnoreMathZoneIds[0]
+
+def isMath():
+	synstackids = vim.eval("synstack(line('.'), col('.') - (col('.')>=2 ? 1 : 0))")
+	try:
+		first = next(i for i in reversed(synstackids) if i in texIgnoreMathZoneIds or i in texMathZoneIds)
+		return first != ignore
+	except StopIteration:
+		return False
+
+# def isMath():
+#     synstackids = vim.eval("synstack(line('.'), col('.') - (col('.')>=2 ? 1 : 0))")
+#     if not set(texIgnoreMathZoneIds).isdisjoint(synstackids):
+#         return False
+#     return not set(texMathZoneIds).isdisjoint(synstackids)
+#    # isdisjoint() can short-circuit as soon as a match is found
+
+
+endglobal
+
+
+pre_expand "create_matrix(snip)"
+snippet "(small|[bBpvV])?mat(rix)?(\d+)x(\d+)" "Generate (small|[bBpvV])?matrix of *rows* by *columns*" br
+endsnippet
+
+snippet "b(egin)?" "begin{} / end{}" br
+\begin{${1:something}}
+	${0:${VISUAL}}
+\end{$1}
+endsnippet
+
+snippet abs "abstract environment" b
+\begin{abstract}
+	$0
+\end{abstract}
+endsnippet
+
+snippet def "definition environment" b
+\begin{definition}
+	$0
+\end{definition}
+endsnippet
+
+snippet tab "tabular / array environment" b
+\begin{${1:t}${1/(t)$|(a)$|(.*)/(?1:abular)(?2:rray)/}}{${2:c}}
+$0${2/(?<=.)(c|l|r)|./(?1: & )/g}
+\end{$1${1/(t)$|(a)$|(.*)/(?1:abular)(?2:rray)/}}
+endsnippet
+
+pre_expand "create_table(snip)"
+snippet "gentbl(\d+)x(\d+)" "Generate table of *width* by *height*" r  
+endsnippet
+
+pre_expand "add_row(snip)"
+snippet "tr(\d+)" "Add table row of dimension ..." r
+endsnippet
+
+snippet table "Table environment" b
+\begin{table}[${1:htpb}]
+	\centering
+	\caption{${2:caption}}
+	\label{tab:${3:label}}
+	\begin{${4:t}${4/(t)$|(a)$|(.*)/(?1:abular)(?2:rray)/}}{${5:c}}
+	$0${5/(?<=.)(c|l|r)|./(?1: & )/g}
+	\end{$4${4/(t)$|(a)$|(.*)/(?1:abular)(?2:rray)/}}
+\end{table}
+endsnippet
+
+snippet fig "Figure environment" b
+\begin{figure}[${2:htpb}]
+	\centering
+	\includegraphics[width=${3:0.8}\linewidth]{${4:name.ext}}
+	\caption{${4/(\w+)\.\w+/\u$1/}$0}
+	\label{fig:${4/(\w+)\.\w+/$1/}}
+\end{figure}
+endsnippet
+
+snippet enum "Enumerate" b
+\begin{enumerate}
+	\item $0
+\end{enumerate}
+endsnippet
+
+snippet item "Itemize" b
+\begin{itemize}
+	\item $0
+\end{itemize}
+endsnippet
+
+snippet desc "Description" b
+\begin{description}
+	\item[$1] $0
+\end{description}
+endsnippet
+
+# snippet it "Individual item" b
+# \item $0
+# endsnippet
+
+snippet part "Part" b
+\part{${1:part name}}%
+\label{prt:${2:${1/(\w+)|\W+/(?1:\L$0\E:_)/ga}}}
+
+$0
+endsnippet
+
+snippet cha "Chapter" b
+\chapter{${1:chapter name}}%
+\label{cha:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+$0
+endsnippet
+
+snippet sec "Section" b
+\section{${1:${VISUAL:section name}}}%
+\label{sec:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+$0
+endsnippet
+
+snippet sec* "Section" b
+\section*{${1:${VISUAL:section name}}}%
+\label{sec:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+${0}
+endsnippet
+
+
+snippet sub "Subsection" b
+\subsection{${1:${VISUAL:subsection name}}}%
+\label{sec:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+$0
+endsnippet
+
+snippet sub* "Subsection" b
+\subsection*{${1:${VISUAL:subsection name}}}%
+\label{sec:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+${0}
+endsnippet
+
+snippet ssub "Subsubsection" b
+\subsubsection{${1:${VISUAL:subsubsection name}}}%
+\label{sec:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+$0
+endsnippet
+
+snippet ssub* "Subsubsection" b
+\subsubsection*{${1:${VISUAL:subsubsection name}}}%
+\label{sec:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+${0}
+endsnippet
+
+snippet par "Paragraph"
+\paragraph{${1:${VISUAL:paragraph name}}}%
+\label{par:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+$0
+endsnippet
+
+snippet subp "Subparagraph"
+\subparagraph{${1:${VISUAL:subparagraph name}}}%
+\label{par:${2:${1/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+
+$0
+endsnippet
+
+# snippet ac "Acroynm normal" b
+# \ac{${1:acronym}}
+# $0
+# endsnippet
+
+# snippet acl "Acroynm expanded" b
+# \acl{${1:acronym}}
+# $0
+# endsnippet
+
+
+snippet ni "Non-indented paragraph" b
+\noindent
+$0
+endsnippet
+
+snippet pac "Package" b
+\usepackage`!p snip.rv='[' if t[1] else ""`${1:options}`!p snip.rv = ']' if t[1] else ""`{${2:package}}$0
+endsnippet
+
+# snippet "($)?lp" "Long parenthesis" !r
+# \left(${1:${VISUAL:contents}}\right) $0
+# endsnippet
+
+snippet lp "Long parenthesis" "isMath()" ie
+\left( $1 \right) $0
+endsnippet
+
+
+snippet "mint(ed)?( (\S+))?" "Minted code typeset" br
+\begin{listing}
+\begin{minted}[linenos,numbersep=5pt,frame=lines,framesep=2mm]{${1:`!p
+snip.rv = match.group(3) if match.group(2) is not None else "language"`}}
+${2:${VISUAL:code}}
+\end{minted}
+\caption{${3:caption name}}
+\label{lst:${4:${3/\\\w+\{(.*?)\}|\\(.)|(\w+)|([^\w\\]+)/(?4:_:\L$1$2$3\E)/ga}}}
+\end{listing}
+
+$0
+endsnippet
+
+# === My snippets
+
+snippet fnote "footnote" 
+\footnote%
+{%
+	$1
+}
+$0
+endsnippet
+
+snippet lb "Long brackets" "isMath()" ie
+\left[ $1 \right] $0
+endsnippet
+
+snippet lB "Long braces" "isMath()" ie
+\left\\{ $1 \right\\} $0
+endsnippet
+
+
+# ==c.f. https://github.com/SirVer/ultisnips/issues/913
+global !p
+def fix_indent(snip):
+    vim.eval('feedkeys("\<c-f>")')
+endglobal
+
+post_expand "fix_indent(snip)"
+snippet it "Individual item" b
+\item $0
+endsnippet
+
+snippet sesl "Labelled Short Exact Sequence" "isMath()" be
+0 \longrightarrow $1 \overset{$2}{\longrightarrow} $3 \overset{$4}{\longrightarrow} $5 \overset{$6}{\longrightarrow} $7 \longrightarrow 0 
+endsnippet
+
+snippet sesl "Short Exact Sequence with labelled arrows" b
+\begin{align*}
+	0 \longrightarrow $1 \overset{$2}{\longrightarrow} $3 \overset{$4}{\longrightarrow} $5 \overset{$6}{\longrightarrow} $7 \longrightarrow 0 
+\end{align*}
+endsnippet
+
+snippet sesx "Short exact sequence with extensible arrows" "isMath()" be
+0 \longrightarrow $1 \xrightarrow{$2} $3 \xrightarrow{$4} $5 \xrightarrow{$6} $7 \longrightarrow 0 
+endsnippet
+
+snippet ses "Unlabelled Short Exact Sequence" "isMath()" be
+0 \longrightarrow $1 \longrightarrow $3 \longrightarrow $5 \longrightarrow $7 \longrightarrow 0$0
+endsnippet
+
+snippet ses "Unlabelled Short Exact Sequence" b
+\begin{align*}
+0 \longrightarrow $1 \longrightarrow $3 \longrightarrow $5 \longrightarrow $7 \longrightarrow 0 
+\end{align*}
+$0
+endsnippet
+
+# snippet "sto|rar" "right arrow" r
+# \rightarrow $0
+# endsnippet
+
+snippet lar "left arrow" w
+\leftarrow $0
+endsnippet
+
+snippet "Rar" "Right arrow" w
+\Rightarrow $0
+endsnippet
+
+snippet implies "Right arrow"
+$\implies$ $0
+endsnippet
+
+snippet implies "Right arrow" "isMath()" we 
+\implies $0
+endsnippet
+
+snippet "Lar" "Left arrow" w
+\Leftarrow $0
+endsnippet
+
+snippet LRar "Left-Right arrow" w
+\Leftrightarrow $0
+endsnippet
+
+snippet iff "Left-Right arrow"
+$\iff$ $0
+endsnippet
+
+snippet iff "Left-Right arrow" "isMath()" we
+\iff $0
+endsnippet
+
+# snippet iffm "Left-Right arrow"
+# $\Leftrightarrow$ $0
+# endsnippet
+
+# snippet to "Long right arrow" "isMath()" we
+# \longrightarrow $0
+# endsnippet
+
+snippet to "Long/short arrow" "isMath()" we
+\lto $0
+endsnippet
+
+snippet to "Long/short arrow"
+$\lto$ $0
+endsnippet
+
+# snippet to "Long right arrow"
+# $\longrightarrow$ $0
+# endsnippet
+
+snippet xto "Extensible Long right arrow" "isMath()" we
+\xrightarrow{$1} $0
+endsnippet
+
+
+snippet xto "Extensible Long right arrow"
+$\xrightarrow{$1}$ $0
+endsnippet
+
+# snippet to "Long right arrow"
+# $\longrightarrow$ $0
+# endsnippet
+
+snippet ato "Aligned long right arrow" "isMath()" we
+&\longrightarrow $0
+endsnippet
+
+snippet lto "Labelled long rightarrow" "isMath()" we
+\overset{$1}{\longrightarrow} $0
+endsnippet
+
+snippet lto "Labelled long rightarrow" w
+$\overset{$1}{\longrightarrow}$ $0
+endsnippet
+
+snippet into "hook long right arrow" "isMath()" we
+\hooklongrightarrow $0
+endsnippet
+
+snippet from "Long left arrow" "isMath()" we
+\longleftarrow $0
+endsnippet
+
+snippet from "Long left arrow" 
+$\longleftarrow$ $0
+endsnippet
+
+
+# snippet lrarl "labelled long right arrow" w
+# \overset{$1}{\longrightarrow} $0
+# endsnippet
+
+# snippet llarl "labelled long left arrow" w
+# \overset{$1}{\longleftarrow} $0
+# endsnippet
+
+snippet smt "maps to" w
+\mapsto $0
+endsnippet
+
+snippet mt "long/short maps to"  w
+\lmapsto $0
+endsnippet
+
+# snippet mt "long maps to"  w
+# \longmapsto $0
+# endsnippet
+
+snippet iso "Isomorphism" w
+\overset{\sim}{\longrightarrow}
+endsnippet
+
+snippet amt "aligned long maps to"  w
+&\longmapsto $0
+endsnippet
+
+snippet dual "Dual ^{\vee}" "isMath()" ie
+^{\vee}
+endsnippet
+
+snippet "((\\\w+\{)?\\?\w+(\})?)pd" "predual" "isMath()" rie
+\predual{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet star "Star ^{*}" "isMath()" ie
+^{*}
+endsnippet
+
+snippet dagger "Dagger ^{\dagger}" "isMath()" ie
+^{\dagger}
+endsnippet
+
+snippet inv "Inverse ^{-1}" "isMath()" ie
+^{-1}
+endsnippet
+
+snippet "((\\\w+\{)?\\?\w+(\})?)sp" "surround with parenthesis" "isMath()" rie
+\left(`!p snip.rv=match.group(1)`\right)
+endsnippet
+
+snippet "((\\\w+\{)?\\?\w+(\})?)sc" "surround with command" ri
+\\${1:command}{`!p snip.rv=match.group(1)`}$0
+endsnippet
+
+snippet ot "\otimes" "isMath()" ie
+\otimes
+endsnippet
+
+snippet tens "\bigotimes" "isMath()" e
+\bigotimes
+endsnippet
+
+snippet op "\oplus" "isMath()" ie
+\oplus 
+endsnippet
+
+# snippet "(\\?\w+)spdual" "Dual surround with parenthesis" "isMath()" rie
+# \left(`!p snip.rv=match.group(1)`\right)^{\vee}
+# endsnippet
+
+# snippet "(\\?\w+)sbdual" "Dual surround with brackets" "isMath()" rie
+# \left[`!p snip.rv=match.group(1)`\right]^{\vee}
+# endsnippet
+
+
+snippet fdef "Function definition" "isMath()" be
+$1 \colon $2 &\longrightarrow $3 \\\\
+		$4 &\longmapsto     $5
+endsnippet
+
+snippet fdef "Function definition" b
+\begin{equation}
+	\begin{aligned}
+	$1 \colon $2 &\longrightarrow $3 \\\\
+			$4 &\longmapsto     $5
+	\end{aligned}
+\end{equation}
+$0
+endsnippet
+
+# snippet funl "Labelled Function definition" b
+# \begin{align}
+# 	$1\colon $2 &\longrightarrow $3\\
+# 			$4 &\longmapsto     $5
+# \label{eq:def_${1}$6}
+# \end{align}
+# $0
+# endsnippet
+
+snippet pwfun "Piecewise function" b
+	\begin{cases}
+		$1, & \text{$2}\\\
+		$3
+	\end{cases}$0
+endsnippet
+
+snippet pwrow "Piecewise row" b
+$1, & \text{$2}$0
+endsnippet
+
+snippet re "Real numbers"
+$\mathbb{R}$
+endsnippet
+
+snippet re "Real numbers" "isMath()" we
+\mathbb{R}$0
+endsnippet
+
+snippet cpx "Complex numbers"
+$\mathbb{C}$
+endsnippet
+
+snippet cpx "Complex numbers" "isMath()" we
+\mathbb{C}$0
+endsnippet
+
+snippet int "Integers"
+$\mathbb{Z}$
+endsnippet
+
+snippet int "Integers" "isMath()" we
+\mathbb{Z}$0
+endsnippet
+
+snippet rat "Rationals"
+$\mathbb{Q}$
+endsnippet
+
+snippet rat "Rationals" "isMath()" we
+\mathbb{Q}$0
+endsnippet
+
+snippet exp "Exponential" "isMath()" we
+e^{$1}$0
+endsnippet
+
+snippet tsub "text subscript" "isMath()" ie
+_{\text{$1}}$0
+endsnippet
+
+snippet tsup "text superscript" "isMath()" ie
+^{\text{$1}}$0
+endsnippet
+
+snippet txt "\text{}" "isMath()" ie
+\text{$1}$0
+endsnippet
+
+
+snippet ;; "insert backslash" Ai
+\
+endsnippet
+
+# priority 100
+# The following snippets are inspired by https://castel.dev/post/lecture-notes-1/
+snippet sr "^2" "isMath()" ie
+^{2}
+endsnippet
+
+snippet cb "^3" "isMath()" ie
+^{3}
+endsnippet
+
+snippet ssj "subscript" "isMath()" iAe
+_{$1}$0
+endsnippet
+
+snippet ssk "superscript" "isMath()" iAe
+^{$1}$0
+endsnippet
+
+snippet : "colon" "isMath()" ie
+ \colon$0
+endsnippet
+
+# snippet "(\\?\w+)hat" "hat" "isMath()" rie
+# \widehat{`!p snip.rv=match.group(1)`}
+# endsnippet
+
+snippet "((\\\w+\{)?\\?\w+(\})?)hat" "hat" "isMath()" rie
+\widehat{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "((\\\w+\{)?\\?\w+(\})?)bar" "overline" "isMath()" rie
+\overline{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "((\\\w+\{)?\\?\w+(\})?)twid" "twiddle" "isMath()" rie
+\twid{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "((\\\w+\{)?\\?\w+(\})?)conj" "conjugate" "isMath()" rie
+\conj{`!p snip.rv=match.group(1)`}
+endsnippet
+
+
+snippet "\$(.+)\$" "Convert to display math" r
+\begin{align*}
+`!p snip.rv = match.group(1)`
+\end{align*}
+$0
+endsnippet
+
+
+snippet // "Fraction" "isMath()" ie
+\\frac{$1}{$2}$0
+endsnippet
+
+snippet '((\d+)|(\d*)(\\)?([A-Za-z]+)((\^|_)(\{\d+\}|\d))*)/' "Fraction" "isMath()" wre
+\\frac{`!p snip.rv = match.group(1)`}{$1}$0
+endsnippet
+
+priority 1000
+snippet '^.*\)/' "() Fraction" "isMath()" wre
+`!p
+stripped = match.string[:-1]
+depth = 0
+i = len(stripped) - 1
+while True:
+	if stripped[i] == ')': depth += 1
+	if stripped[i] == '(': depth -= 1
+	if depth == 0: break;
+	i -= 1
+snip.rv = stripped[0:i] + "\\frac{" + stripped[i+1:-1] + "}"
+`{$1}$0
+endsnippet
+
+
+# snippet tens "tensor"
+# $\otimes$$0
+# endsnippet
+
+# snippet tens "tensor" "isMath()" we
+# \otimes $0
+# endsnippet
+
+# snippet < "\langle" "isMath()" ie 
+# \langle $0
+# endsnippet
+
+# snippet > "\rangle" "isMath()" ie 
+# \rangle$0
+# endsnippet
+
+# Greek Autocompletions
+snippet ,,a "\alpha" "isMath()" iAe
+\alpha
+endsnippet
+
+snippet ,,b "\beta" "isMath()" iAe
+\beta
+endsnippet
+
+snippet ,,g "\gamma" "isMath()" iAe
+\gamma
+endsnippet
+
+snippet ,,G "\Gamma" "isMath()" iAe
+\Gamma
+endsnippet
+
+snippet ,,d "\delta" "isMath()" iAe
+\delta
+endsnippet
+
+snippet ,,D "\Delta" "isMath()" iAe
+\Delta
+endsnippet
+
+snippet ,,e "\epsilon" "isMath()" iAe
+\epsilon
+endsnippet
+
+snippet ,,ve "\varepsilon" "isMath()" iAe
+\varepsilon
+endsnippet
+
+snippet ,,z "\zeta" "isMath()" iAe
+\zeta
+endsnippet
+
+snippet ,,h "\eta" "isMath()" iAe
+\eta
+endsnippet
+
+snippet ,,q "\theta" "isMath()" iAe
+\theta
+endsnippet
+
+snippet ,,vq "\vartheta" "isMath()" iAe
+\vartheta
+endsnippet
+
+snippet ,,Q "\Theta" "isMath()" iAe
+\Theta
+endsnippet
+
+snippet ,,i "\iota" "isMath()" iAe
+\iota
+endsnippet
+
+snippet ,,k "\kappa" "isMath()" iAe
+\kappa
+endsnippet
+
+snippet ,,l "\lambda" "isMath()" iAe
+\lambda
+endsnippet
+
+snippet ,,L "\Lambda" "isMath()" iAe
+\Lambda
+endsnippet
+
+snippet ,,m "\mu" "isMath()" iAe
+\mu
+endsnippet
+
+snippet ,,n "\nu" "isMath()" iAe
+\nu
+endsnippet
+
+snippet ,,x "\xi" "isMath()" iAe
+\xi
+endsnippet
+
+snippet ,,X "\Xi" "isMath()" iAe
+\Xi
+endsnippet
+
+snippet ,,p "\pi" "isMath()" iAe
+\pi
+endsnippet
+
+snippet ,,P "\Pi" "isMath()" iAe
+\Pi
+endsnippet
+
+snippet ,,r "\rho" "isMath()" iAe
+\rho
+endsnippet
+
+snippet ,,s "\sigma" "isMath()" iAe
+\sigma
+endsnippet
+
+snippet ,,S "\Sigma" "isMath()" iAe
+\Sigma
+endsnippet
+
+snippet ,,t "\tau" "isMath()" iAe
+\tau
+endsnippet
+
+snippet ,,u "\upsilon" "isMath()" iAe
+\upsilon
+endsnippet
+
+snippet ,,U "\Upsilon" "isMath()" iAe
+\Upsilon
+endsnippet
+
+snippet ,,f "\phi" "isMath()" iAe
+\phi
+endsnippet
+
+snippet ,,vf "\varphi" "isMath()" iAe
+\varphi
+endsnippet
+
+snippet ,,F "\Phi" "isMath()" iAe
+\Phi
+endsnippet
+
+snippet ,,c "\Chi" "isMath()" iAe
+\chi
+endsnippet
+
+snippet ,,y "\psi" "isMath()" iAe
+\psi
+endsnippet
+
+snippet ,,Y "\Psi" "isMath()" iAe
+\Psi
+endsnippet
+
+snippet ,,w "\omega" "isMath()" iAe
+\omega
+endsnippet
+
+snippet ,,W "\Omega" "isMath()" iAe
+\Omega
+endsnippet
+
+snippet ,,O "\Omega" "isMath()" iAe
+\Omega
+endsnippet
+
+snippet comp "compose"
+\circ $0
+endsnippet
+
+snippet sum "\sum" "isMath()" e
+\sum_{$1}^{$2} $0
+endsnippet
+
+snippet "(\\?\w+)cat" "category" "isMath()" !re
+\caty{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "(\\?\w+)cat" "category" !r
+\caty{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "(\\?\w+)fun" "functor" "isMath()" !re
+\fun{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "(\\?\w+)und" "underlying" "isMath()" !re
+\under{`!p snip.rv=match.group(1)`}
+endsnippet
+
+# snippet "(\\?\w+)fun" "functor" !r
+# \fun{`!p snip.rv=match.group(1)`}
+# endsnippet
+
+snippet "([A-Z])hilb" "hilbert space" "isMath()" !re
+\hilb{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "([A-Z])hs" "hilbert space" "isMath()" !re
+\hs{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "([A-Z])chs" "Conjugate hilbert space" "isMath()" !re
+\conj{\hs{`!p snip.rv=match.group(1)`}}
+endsnippet
+
+# paper specific
+snippet "([A-Z])hm" "hilbert module" "isMath()" !re
+\hm{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "([A-Z])hilb" "hilbert space" r
+$\hilb{`!p snip.rv=match.group(1)`}$ $0
+endsnippet
+
+
+snippet "([A-Z])cal" "Calligraphic letters" "isMath()" !re
+\mathcal{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "([A-Z])cal" "Calligraphic letters" r
+$\mathcal{`!p snip.rv=match.group(1)`}$ $0
+endsnippet
+
+snippet "([A-Z])bb" "Calligraphic letters" "isMath()" !re
+\mathbb{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "(\\?\w+)bbm" "Blackboard extended" "isMath()" !re
+\mathbbm{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "(\\?\w+)frak" "Fraktur" "isMath()" !re
+\mathfrak{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet "(\\?\w+)tt" "Teletype" "isMath()" !re
+\mathtt{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet thm "tcolorbox theorem" b
+\begin{theorem}{}{}
+	$0
+\end{theorem}
+endsnippet
+
+snippet lem "tcolorbox lemma" b
+\begin{lemma}{}{}
+	$0
+\end{lemma}
+endsnippet
+
+snippet prop "tcolorbox proposition" b
+\begin{proposition}{}{}
+	$0
+\end{proposition}
+endsnippet
+
+snippet cor "tcolorbox corollary" b
+\begin{corollary}{}{}
+	$0
+\end{corollary}
+endsnippet
+
+snippet proof "proof" b
+\begin{proof}
+	$0
+\end{proof}
+endsnippet
+
+snippet foot "footnote" i
+\footnote%
+{%
+	$1
+}
+$0
+endsnippet
+
+snippet "(\s?)eqr" "equation reference" r
+~\eqref{eq:$1} $0
+endsnippet
+
+snippet set "set specified by conditions" "isMath()" ie
+\\{$1 : \text{ $2} \\}$0
+endsnippet
+
+
+snippet "<(.+)>" "bracket" "isMath()" re
+\langle `!p snip.rv=match.group(1)` \rangle$0
+endsnippet
+
+snippet torpdf "texorpdfstring"
+\texorpdfstring{$1}{$2}$0
+endsnippet
+
+
+
+# snippet ss "\subseteq" "isMath()" e
+# \subseteq
+# endsnippet
+
+
+
+# snippet oo "Infinity" "isMath()" Ae
+# \infty
+# endsnippet
+
+# snippet "rem "Remark" b
+# \begin{remark}[${2:${VISUAL:label=rem:}}]{}{${3:${VISUAL:title}}}
+# 	$1
+# \end{remark}
+# $0
+# endsnippet
+
+# snippet := "Math mode definition" "isMath()" wi
+# \coloneqq $0
+# endsnippet
+
+# snippet "bb([A-Z])" "Bolface math" !r
+# 	\mathbb{\w}
+# endsnippet
+
+
+# snippet mbb "blackboard math"
+# \mathbb{$1} $0
+# endsnippet
+# ==
+
+# vim:ft=snippets:

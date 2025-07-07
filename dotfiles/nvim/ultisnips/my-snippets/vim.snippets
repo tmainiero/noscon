@@ -1,0 +1,33 @@
+global !p
+from math import floor, ceil
+
+def left(lng, fill, s):
+    count = int(floor((lng - len(s) - 6) / 2.0))
+    if count < 0: count = 0
+    return fill * count
+
+def right(lng, fill, s):
+    count = int(ceil((lng - len(s) - 6) / 2.0))
+    if count < 0: count = 0
+    return fill * count
+endglobal
+
+snippet sec "Centered section" b
+"`!p snip.rv = left(80, '=', t[1])` ${1:title} `!p snip.rv = right(80, '=', t[1])`"
+$0
+endsnippet
+
+snippet sub "Centered subsection" b
+"`!p snip.rv = left(60, '=', t[1])` ${1:title} `!p snip.rv = right(60, '=', t[1])`"
+$0
+endsnippet
+
+snippet ssub "Centered sub-subsection" b
+"`!p snip.rv = left(40, '=', t[1])` ${1:title} `!p snip.rv = right(40, '=', t[1])`"
+$0
+endsnippet
+
+snippet sssub "Centered sub-subsection" b
+"`!p snip.rv = left(30, '=', t[1])` ${1:title} `!p snip.rv = right(30, '=', t[1])`"
+$0
+endsnippet
