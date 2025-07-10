@@ -2,8 +2,11 @@
 
 {
   imports = [
-    # Use podman as backend
-    ../podman
+    # # Use podman as backend
+    # ../podman
+
+    # Use docker as backend
+    ../docker
   ];
 
   config ={
