@@ -65,6 +65,9 @@
     # config = builtins.readFile ./xmonad.hs;
   };
 
+  # Screenlocker
+  services.xscreensaver.enable = true;
+
   # Backlight control
   programs.light.enable = true;
 
