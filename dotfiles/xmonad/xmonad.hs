@@ -1,6 +1,7 @@
 -- Base
 import XMonad
 import qualified XMonad.StackSet as W
+import System.IO
 
 -- Actions
 -- The following resize windows with the mouse
@@ -30,16 +31,16 @@ import XMonad.Hooks.DynamicIcons
 import XMonad.Hooks.WindowSwallowing
 -- To overcome java issues
 import XMonad.Hooks.SetWMName (setWMName)
-
-import System.IO
+import XMonad.Hooks.StatusBar.PP (filterOutWsPP)
 
 -- Utilities
 import XMonad.Util.Run (spawnPipe, runInTerm)
 import XMonad.Util.EZConfig (additionalKeys, additionalKeysP)
 import XMonad.Util.SpawnOnce
 import qualified XMonad.Util.Hacks as Hacks -- Dynamically resize xmobar padding for trayer
+import XMonad.Util.NamedScratchpad
 
-    -- Layouts
+-- Layouts
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.Accordion
 import XMonad.Layout.Tabbed
@@ -75,10 +76,6 @@ import XMonad.Layout.Gaps
       GapMessage(DecGap, ToggleGaps, IncGap) )
 
 import qualified Data.Map as M
--- import qualified Graphics.X11.ExtraTypes.XF86 as XF86
-
---Brightness controls: deprecated in NixOS in favor of "light"
--- import qualified XMonad.Util.Brightness as Bright
 
 myFont :: String
 myFont = "xft:SauceCodePro Nerd Font Mono:regular:size=9:antialias=true:hinting=true"
@@ -97,12 +94,6 @@ myTerminal = "alacritty"
 -- The spacingRaw module adds a configurable amount of space around windows.
 mySpacing :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
 mySpacing i = spacingRaw False (Border i i i i) True (Border i i i i) True
-
----- Below is a variation of the above except no borders are applied
----- if fewer than two windows. So a single window has no gaps.
--- mySpacing' :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
--- mySpacing' i = spacingRaw True (Border i i i i) True (Border i i i i) True
-
 
 ------------------------------------------------------------------------
 --                              Layouts                               --
@@ -166,18 +157,6 @@ myLayoutHook = gaps defaultGaps $ avoidStruts $ mouseResize $ windowArrange $ T.
                                  ||| floats
                                  ||| noBorders tabs
                                  ||| wideAccordion
-----------------------
---  Unused Layouts  --
-----------------------
--- grid     = renamed [Replace "grid"]
---            $ smartBorders
---            $ addTabs shrinkText myTabTheme
---            $ subLayout [] (smartBorders Simplest)
---            $ limitWindows 12
---            $ mySpacing 2
---            $ mkToggle (single MIRROR)
---            $ Grid (16/10)
-
 
 -- https://www.reddit.com/r/xmonad/comments/hm2tg0/how_to_toggle_floating_state_on_a_window/
 toggleFloat :: Window -> X ()
@@ -189,7 +168,6 @@ toggleFloat w = windows (\s -> if M.member w (W.floating s)
 -- centreFloat w = windows $ W.float w centreRect
 
 defaultGaps = [(L,20), (R, 20), (U, 30), (D, 15)]
-
 
 myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9:hell"]
 
@@ -205,7 +183,8 @@ myWorkspaceIndices = M.fromList $ zip myWorkspaces [1..]
 -- https://gitlab.com/dwt1/dotfiles/-/blob/master/.xmonad/xmonad.hs
 myStartupHook :: X ()
 myStartupHook = do
-    spawn "picom" >> addEWMHFullscreen
+    spawn "picom"
+    -- spawn "picom" >> addEWMHFullscreen
     spawn "xsetroot -cursor_name left_ptr" -- gumby
     spawnOnce "trayer --edge top --align right --SetDockType true --SetPartialStrut true --expand true --widthtype request --tint 0x282c34  --height 25 --iconspacing 8 --transparent true --alpha 0"
     spawn "dunst"
@@ -220,26 +199,50 @@ myStartupHook = do
 
 -- Fix firefox non-fullscreen https://github.com/xmonad/xmonad-contrib/issues/183#issuecomment-307407822, chrome works fine
 
-addEWMHFullscreen :: X ()
-addEWMHFullscreen   = do
-    wms <- getAtom "_NET_WM_STATE"
-    wfs <- getAtom "_NET_WM_STATE_FULLSCREEN"
-    mapM_ addNETSupported [wms, wfs]
+-- addEWMHFullscreen :: X ()
+-- addEWMHFullscreen   = do
+--     wms <- getAtom "_NET_WM_STATE"
+--     wfs <- getAtom "_NET_WM_STATE_FULLSCREEN"
+--     mapM_ addNETSupported [wms, wfs]
 
-addNETSupported :: Atom -> X ()
-addNETSupported x   = withDisplay $ \dpy -> do
-    r               <- asks theRoot
-    a_NET_SUPPORTED <- getAtom "_NET_SUPPORTED"
-    a               <- getAtom "ATOM"
-    liftIO $ do
-        sup <- (join . maybeToList) <$> getWindowProperty32 dpy a_NET_SUPPORTED r
-        when (fromIntegral x `notElem` sup) $
-            changeProperty32 dpy r a_NET_SUPPORTED a propModeAppend [fromIntegral x]
-
+-- addNETSupported :: Atom -> X ()
+-- addNETSupported x   = withDisplay $ \dpy -> do
+--     r               <- asks theRoot
+--     a_NET_SUPPORTED <- getAtom "_NET_SUPPORTED"
+--     a               <- getAtom "ATOM"
+--     liftIO $ do
+--         sup <- (join . maybeToList) <$> getWindowProperty32 dpy a_NET_SUPPORTED r
+--         when (fromIntegral x `notElem` sup) $
+--             changeProperty32 dpy r a_NET_SUPPORTED a propModeAppend [fromIntegral x]
 
 ----------------------------
 --  End Hacks to revisit  --
 ----------------------------
+
+-------------------
+--  Scratchpads  --
+-------------------
+myScratchPads :: [NamedScratchpad]
+myScratchPads = [ NS "terminal" spawnTerm findTerm manageTerm
+                , NS "nix packages" spawnNixPkgs findNixPkgs manageNixPkgs
+                ]
+  where
+    spawnTerm  = myTerminal ++ " -t scratchpad"
+    findTerm   = title =? "scratchpad"
+    manageTerm = customFloating $ W.RationalRect l t w h
+               where
+                 h = 0.9
+                 w = 0.9
+                 t = 0.95 -h
+                 l = 0.95 -w
+    spawnNixPkgs  = "firefox https://search.nixos.org/packages?channel=unstable&"
+    findNixPkgs   = title =? "nix packages"
+    manageNixPkgs = customFloating $ W.RationalRect l t w h
+               where
+                 h = 0.9
+                 w = 0.9
+                 t = 0.95 -h
+                 l = 0.95 -w
 
 myManageHook = composeAll
    [ (className =? "KeePassXC")                         --> doShift "8"
@@ -253,7 +256,8 @@ myManageHook = composeAll
    , isFullscreen                                       --> doFullFloat
    , manageDocks
    , manageZoomHook
-   ]
+   ] 
+   <+> namedScratchpadManageHook myScratchPads
 
 -- https://www.peterstuart.org/posts/2021-09-06-xmonad-zoom/
 manageZoomHook =
@@ -333,7 +337,6 @@ myIconConfig = def{ iconConfigIcons = myIcons, iconConfigFmt = iconsFmtAppend $ 
 dynamicLogIconsWithPPCustom :: IconConfig -> PP -> X () -- ^ The resulting 'X' action
 dynamicLogIconsWithPPCustom c = dynamicLogWithPP <=< dynamicIconsPP c
 
-
 -- cyan color: #03a9f4
 -- Reference: https://gitlab.com/dwt1/dotfiles/-/blob/13c6509f52c94bdff436012440c952a47122b439/.config/xmonad/xmonad.hs
 -- eventLogHookForXmobar proc = dynamicLogWithPP xmobarPP {....} without Icons
@@ -347,11 +350,6 @@ eventLogHookForXmobar proc = dynamicLogIconsWithPPCustom myIconConfig xmobarPP
                         , ppUrgent = xmobarColor "#adc400" "" . wrap "!" "!"                -- Urgent workspace
                         , ppExtras  = [windowCount]                                         -- # of windows current workspace
                         }
-                        -- , ppHidden = xmobarColor "#82aaff" "" . wrap "*" "" . clickable -- Hidden workspaces
-                        -- , ppHiddenNoWindows = xmobarColor "#c792ea" ""  . clickable     -- Hidden workspaces (no windows)
-
--- clickable ws = "<action=xdotool key super+"++show i++">"++ws++"</action>"
---     where i = fromJust $ M.lookup ws myWorkspaceIndices
 
 main = do
     xmproc <- spawnPipe "xmobar $HOME/noscon/dotfiles/xmobar/.xmobarrc"
@@ -378,10 +376,8 @@ main = do
         , ("M-<Tab>", toggleRecentNonEmptyWS)
 
         --Laptop Media Keys
-        -- , ("<XF86MonBrightnessUp>"   , Bright.increase)
-        -- , ("<XF86MonBrightnessDown>" , Bright.decrease)
-        , ("<XF86MonBrightnessUp>"   , spawn "light -A 10")
-        , ("<XF86MonBrightnessDown>" , spawn "light -U 10")
+        , ("<XF86MonBrightnessUp>"   , spawn "light -A 5")
+        , ("<XF86MonBrightnessDown>" , spawn "light -U 5")
         , ("<XF86AudioMute>",         spawn "pactl set-sink-mute 0 toggle")
         , ("<XF86AudioLowerVolume>",  spawn "amixer -c 0 -q set Master 2dB-" >> spawn "bash $HOME/scripts/get-volume.sh | dzen2 -p 1 -w '200' -h '30' -x 1650 -y 30" )
         , ("<XF86AudioRaiseVolume>",  spawn "amixer -c 0 -q set Master 2dB+" >> spawn "bash $HOME/scripts/get-volume.sh | dzen2 -p 1 -w '200' -h '30' -x 1650 -y 30")
@@ -392,8 +388,9 @@ main = do
         , ("M-w",   spawn "rofi -show window -icon-theme 'Papirus' -show-icons")
         , ("M-b",   spawn "firefox")
         , ("M-S-b", spawn "firefox -private-window")
-        -- , ("M-t",   spawn "$HOME/noscon/scripts/tab-switcher.sh")
         , ("M-S-f", runInTerm "--class \"Alacritty\",\"lf-files\" --title \"lf\"" "lf")
+        , ("M-s t", namedScratchpadAction myScratchPads "terminal")
+        , ("M-s s", namedScratchpadAction myScratchPads "nix packages")
 
         -- Move windows
         , ("M-C-l", withFocused (keysMoveWindow (15, 0)))
