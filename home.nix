@@ -51,13 +51,14 @@
     zathura
 
     # torrent
-    transmission-gtk
+    # transmission-gtk
 
     # Other
     # libreoffice
 
     # AI
     codex
+    claude-code
   ];
 
 
