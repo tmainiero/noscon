@@ -131,9 +131,9 @@
     autosuggestion.enable = true;
     autocd = true;
     defaultKeymap = "emacs";
-      # dotDir = "${config.xdg.configHome}/zsh";
+      dotDir = "${config.xdg.configHome}/zsh";
       # Annoying home-prepend issues don't allow the above
-      dotDir = ".config/zsh";
+      # dotDir = ".config/zsh";
       history = {
       # Long history
       extended = true;
