@@ -15,3 +15,8 @@ if type -q any-nix-shell
 		# and list packages to the the right in nix-shell
 		any-nix-shell fish --info-right | source
 end
+
+# Don't save history in Claude Code agent sessions
+if set -q CLAUDE_CODE
+	set -g fish_private_mode 1
+end
