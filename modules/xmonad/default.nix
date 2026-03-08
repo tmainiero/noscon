@@ -68,8 +68,8 @@
   # Screenlocker
   services.xscreensaver.enable = true;
 
-  # Backlight control
-  programs.light.enable = true;
+  # Backlight control (programs.light was removed from nixpkgs)
+  hardware.acpilight.enable = true;
 
   services.xserver.xkb.layout = "us"; 
 

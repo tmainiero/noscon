@@ -81,8 +81,7 @@ set wildignore+=*.obj
 highlight IncSearch guibg=green ctermbg=green term=underline
 
 "=== Filetype Specific ===="
-filetype plugin on " run filetype appropriate plugins
-filetype indent on " load filetype-specific indent files
+" filetype plugin and indent are enabled by neovim defaults (since 0.6+)
 
 "= Distinguish Filetypes =="
 

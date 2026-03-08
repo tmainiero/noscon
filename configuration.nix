@@ -89,9 +89,6 @@
     # File Manager
     lf
 
-    # System information
-    neofetch
-
     # Visualize nix dependencies
     # nix-tree
 
