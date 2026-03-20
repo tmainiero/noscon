@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, user, ... }:
 
 {
   imports =
@@ -40,7 +40,7 @@
   # Printing
   services.printing.enable = true;
 
-  users.users.${config.my.user.name} = {
+  users.users.${user} = {
     isNormalUser = true;
     extraGroups = [
       "networkmanager"
@@ -103,7 +103,7 @@
 
   programs.nh = {
     enable = true;
-    flake = "${config.my.user.homeDirectory}/noscon";
+    flake = "/home/${user}/noscon";
    # clean.enable = false; 
    # clean.extraArgs = "--keep-since 50d" --keep 3"
   };

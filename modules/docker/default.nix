@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, user, ... }:
 
 let cfg = config.my.docker;
 in {
@@ -7,7 +7,7 @@ in {
 
     user = lib.mkOption {
       type = lib.types.str;
-      default = config.my.user.name;
+      default = user;
       description = "User to add to the docker group.";
     };
   };
