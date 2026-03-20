@@ -13,7 +13,11 @@
     mkHost = import ./lib/make-host.nix { inherit nixpkgs home-manager; };
   in {
     nixosConfigurations = {
-      kuato = mkHost { host = "kuato"; user = "cornholio"; homeModule = ./home.nix; };
+      kuato = mkHost { 
+        host = "kuato"; 
+        user = "cornholio"; 
+        homeModule = ./home.nix; 
+      };
     };
   };
 }
