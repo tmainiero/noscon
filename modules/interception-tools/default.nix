@@ -1,4 +1,4 @@
-# Interceptions tools module 
+# Interceptions tools module
 
 # Uses my custom interception-tools-plugins
 ## Current mappings:
@@ -9,23 +9,31 @@
 ## Broken/Unused mappings
 ### MENU swapped with SUPER (menutosuper): DOES NOT WORK!
 
-{ pkgs, ... }:
-let
-  interception-tools = pkgs.interception-tools;
-  my-plugins = pkgs.callPackage ../../packages/interception-tools-plugins {  };
-in {
-  services.interception-tools.enable = true;
-  services.interception-tools.plugins = [ my-plugins ];
+{ config, lib, pkgs, ... }:
 
-  # Full paths to executables needed to work properly
-  services.interception-tools.udevmonConfig = ''
-    - JOB: "${interception-tools}/bin/intercept -g $DEVNODE \
-    | ${my-plugins}/bin/capstoesc \
-    | ${my-plugins}/bin/rightctrltosuper \
-    | ${my-plugins}/bin/enter+rightctrl \
-    | ${interception-tools}/bin/uinput -d $DEVNODE"
-      DEVICE:
-        EVENTS:
-          EV_KEY: [KEY_CAPSLOCK, KEY_ESC, KEY_RIGHTCTRL, KEY_RIGHTMETA, KEY_ENTER]
-  ''; 
+let
+  cfg = config.my.interception-tools;
+  interception-tools = pkgs.interception-tools;
+  my-plugins = pkgs.callPackage ../../packages/interception-tools-plugins { };
+in {
+  options.my.interception-tools = {
+    enable = lib.mkEnableOption "Interception tools (key remapping)";
+  };
+
+  config = lib.mkIf cfg.enable {
+    services.interception-tools.enable = true;
+    services.interception-tools.plugins = [ my-plugins ];
+
+    # Full paths to executables needed to work properly
+    services.interception-tools.udevmonConfig = ''
+      - JOB: "${interception-tools}/bin/intercept -g $DEVNODE \
+      | ${my-plugins}/bin/capstoesc \
+      | ${my-plugins}/bin/rightctrltosuper \
+      | ${my-plugins}/bin/enter+rightctrl \
+      | ${interception-tools}/bin/uinput -d $DEVNODE"
+        DEVICE:
+          EVENTS:
+            EV_KEY: [KEY_CAPSLOCK, KEY_ESC, KEY_RIGHTCTRL, KEY_RIGHTMETA, KEY_ENTER]
+    '';
+  };
 }

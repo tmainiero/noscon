@@ -1,22 +1,12 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
-{
-  config = {
+let cfg = config.my.blueman-applet;
+in {
+  options.my.blueman-applet = {
+    enable = lib.mkEnableOption "Blueman applet";
+  };
+
+  config = lib.mkIf cfg.enable {
     services.blueman.enable = true;
-
-    # Inspired by the home-manager config
-    # https://github.com/nix-community/home-manager/blob/master/modules/services/blueman-applet.nix#L29
-    # systemd.user.services.blueman-applet = {
-    #   description = "Blueman applet";
-    #   wantedBy = ["graphical-session.target"];
-    #   after = [ "graphical-session-pre.target"];
-    #   partOf = [ "graphical-session.target" ];
-
-    #   serviceConfig = {
-    #     ExecStart = [ "${pkgs.blueman}/bin/blueman-applet" ]; 
-    #     RestartSec = 3;
-    #     Restart = "always";
-    #   };
-    # };
   };
 }

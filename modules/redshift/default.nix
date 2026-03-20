@@ -1,7 +1,39 @@
 # Redshift
-{config, lib, pkgs, ...}:
-{
-  config = {
+{ config, lib, ... }:
+
+let cfg = config.my.redshift;
+in {
+  options.my.redshift = {
+    enable = lib.mkEnableOption "Redshift (color temperature)";
+
+    latitude = lib.mkOption {
+      type = lib.types.float;
+      default = 40.713051;
+      description = "Latitude for location provider.";
+    };
+
+    longitude = lib.mkOption {
+      type = lib.types.float;
+      default = -74.007233;
+      description = "Longitude for location provider.";
+    };
+
+    temperature = {
+      day = lib.mkOption {
+        type = lib.types.int;
+        default = 6500;
+        description = "Daytime color temperature.";
+      };
+
+      night = lib.mkOption {
+        type = lib.types.int;
+        default = 2000;
+        description = "Nighttime color temperature.";
+      };
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
     services.redshift = {
       enable = true;
       brightness = {
@@ -9,29 +41,13 @@
         night = "1";
       };
       temperature = {
-        day = 6500;
-        night = 2000;
+        day = cfg.temperature.day;
+        night = cfg.temperature.night;
       };
     };
 
-    ##############
-    #  New York  #
-    ##############
     location.provider  = "manual";
-    location.latitude  = 40.713051;
-    location.longitude = -74.007233;
-
-    ########
-    #  LA  #
-    ########
-    # location.provider  = "manual";
-    # location.latitude  = 34.0549;
-    # location.longitude = -118.2426;
-
-    # Set location provider 
-    # (stuck on "waiting for initial location..")
-    # location.provider = "geoclue2";
-    #services.geoclue2.enable = true;
-    #services.geoclue2.appConfig.redshift.isAllowed = true;
+    location.latitude  = cfg.latitude;
+    location.longitude = cfg.longitude;
   };
 }

@@ -2,17 +2,18 @@
 
 {
   imports =
-    [ 
+    [
       ./hosts/kuato/hardware-configuration.nix
       ./hosts/kuato/misc-setup.nix
-      ./modules/neovim/neovim-basic.nix
-      ./modules/xmonad
-      ./modules/fish
-      ./modules/distrobox
-      ./modules/texlive
-      ./modules/interception-tools
-      # ./modules/mount-ios-device
+      ./modules
     ];
+
+  my.neovim-system.enable      = true;
+  my.xmonad.enable             = true;
+  my.fish.enable               = true;
+  my.distrobox.enable          = true;
+  my.texlive.enable            = true;
+  my.interception-tools.enable = true;
 
   # Unfree packages allowed (Zoom); sorry Richard
   nixpkgs.config.allowUnfree = true;
@@ -49,21 +50,11 @@
   # Printing
   services.printing.enable = true;
 
-  # Enable touchpad support
-  services.libinput = {
-    enable = true;
-    touchpad = {
-      tapping = false; # disable tap to click
-      disableWhileTyping = true;
-    };
-  };
-
   users.users.cornholio= {
     isNormalUser = true;
     extraGroups = [
-      "networkmanager" 
+      "networkmanager"
       "wheel"  # enable sudo
-      "docker" # self-explanatory
       "video"  # for brightness control
     ];     
     shell = pkgs.fish;
@@ -95,6 +86,9 @@
     # Video conferencing
     zoom-us
     # teams-for-linux
+
+    # Security
+    gitleaks
   ];
 
   services.xserver.displayManager.lightdm.enable = true;

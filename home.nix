@@ -1,7 +1,9 @@
 {config, pkgs, ...}:
 
 {
-  imports = [home-modules/neovim];
+  imports = [./home-modules];
+
+  my.neovim.enable = true;
   # Let Home Manager install and manage itself
   programs.home-manager.enable=true;
 

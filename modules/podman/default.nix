@@ -1,17 +1,25 @@
-{ config, pkgs, lib, ... }:
-{
-  virtualisation = {
-    podman = {
-      enable = true;
+{ config, lib, pkgs, ... }:
 
-      # Create a `docker` alias for podman, to use it as a drop-in replacement
-      dockerCompat = true;
-
-      # Required for containers under podman-compose to be able to talk to each other.
-      defaultNetwork.settings.dns_enabled = true;
-    };
+let cfg = config.my.podman;
+in {
+  options.my.podman = {
+    enable = lib.mkEnableOption "Podman virtualisation";
   };
 
-  # Temporary workaround for OCI permission error
-  security.lsm = lib.mkForce [];
+  config = lib.mkIf cfg.enable {
+    virtualisation = {
+      podman = {
+        enable = true;
+
+        # Create a `docker` alias for podman, to use it as a drop-in replacement
+        dockerCompat = true;
+
+        # Required for containers under podman-compose to be able to talk to each other.
+        defaultNetwork.settings.dns_enabled = true;
+      };
+    };
+
+    # Temporary workaround for OCI permission error
+    security.lsm = lib.mkForce [];
+  };
 }

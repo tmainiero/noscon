@@ -1,0 +1,20 @@
+{
+  imports = [
+    ./blueman-applet
+    ./distrobox
+    ./docker
+    ./fish
+    ./interception-tools
+    ./mount-ios-device
+    ./neovim/neovim-basic.nix
+    ./nm-applet
+    ./pasystray
+    ./picom
+    ./podman
+    ./redshift
+    ./systemtray
+    ./texlive
+    ./udiskie
+    ./xmonad
+  ];
+}

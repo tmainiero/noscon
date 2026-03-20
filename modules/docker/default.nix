@@ -1,10 +1,24 @@
-{ config, pkgs, lib, ... }:
-{
-  virtualisation.docker.enable = true;
+{ config, lib, pkgs, ... }:
 
-  # Optional: Add your user to the "docker" group to run docker without sudo
-  users.users.cornholio.extraGroups = [ "docker" ];
+let cfg = config.my.docker;
+in {
+  options.my.docker = {
+    enable = lib.mkEnableOption "Docker virtualisation";
 
-  # Temporary workaround for OCI permission error
-  security.lsm = lib.mkForce [];
+    user = lib.mkOption {
+      type = lib.types.str;
+      default = "cornholio";
+      description = "User to add to the docker group.";
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
+    virtualisation.docker.enable = true;
+
+    # Add user to the "docker" group to run docker without sudo
+    users.users.${cfg.user}.extraGroups = [ "docker" ];
+
+    # Temporary workaround for OCI permission error
+    security.lsm = lib.mkForce [];
+  };
 }

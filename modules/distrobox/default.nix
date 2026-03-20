@@ -1,27 +1,33 @@
-{config, lib, pkgs, ...}:
+{ config, lib, pkgs, ... }:
 
-{
-  imports = [
-    # # Use podman as backend
-    # ../podman
+let cfg = config.my.distrobox;
+in {
+  options.my.distrobox = {
+    enable = lib.mkEnableOption "Distrobox";
 
-    # Use docker as backend
-    ../docker
-  ];
+    backend = lib.mkOption {
+      type = lib.types.enum [ "docker" "podman" ];
+      default = "docker";
+      description = "Container backend for distrobox.";
+    };
+  };
 
-  config ={
+  config = lib.mkIf cfg.enable {
+    my.docker.enable = lib.mkDefault (cfg.backend == "docker");
+    my.podman.enable = lib.mkDefault (cfg.backend == "podman");
+
     environment.systemPackages = with pkgs; [
       distrobox
-      xorg.xhost
+      xhost
     ];
 
-  # Keep X from blocking access to containers
-  # https://github.com/NixOS/nixpkgs/issues/208817https://github.com/NixOS/nixpkgs/issues/208817
-  environment.shellInit = ''
-    [ -n "$DISPLAY" ] && xhost +si:localuser:$USER || true
-  '';
+    # Keep X from blocking access to containers
+    # https://github.com/NixOS/nixpkgs/issues/208817
+    environment.shellInit = ''
+      [ -n "$DISPLAY" ] && xhost +si:localuser:$USER || true
+    '';
 
-  # Add ~/.local/bin to $PATH for simple distrobox export:
-  environment.localBinInPath = true;
-};
+    # Add ~/.local/bin to $PATH for simple distrobox export:
+    environment.localBinInPath = true;
+  };
 }

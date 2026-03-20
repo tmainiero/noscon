@@ -1,12 +1,29 @@
 # Picom configuration
-{config, lib, pkgs, ...}:
-{
-  config = {
+{ config, lib, ... }:
+
+let cfg = config.my.picom;
+in {
+  options.my.picom = {
+    enable = lib.mkEnableOption "Picom compositor";
+
+    cornerRadius = lib.mkOption {
+      type = lib.types.float;
+      default = 8.0;
+      description = "Corner radius for rounded corners.";
+    };
+
+    backend = lib.mkOption {
+      type = lib.types.str;
+      default = "glx";
+      description = "Rendering backend (glx or xrender).";
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
     services.picom.enable = true;
-    services.picom.settings =
-      {
+    services.picom.settings = {
       # Animations
-      transition-length=20;
+      transition-length = 20;
       transition-pow-x = 0.5;
       transition-pow-y = 0.5;
       transition-pow-w = 0.5;
@@ -14,7 +31,7 @@
       size-transition = true;
 
       # Rounded corners
-      corner-radius = 8.0;
+      corner-radius = cfg.cornerRadius;
       rounded-corners-exclude = [
         "class_g = 'Zathura'"
         "class_g = 'dmenu'"
@@ -27,10 +44,7 @@
       # Blurring
       blur = {
         method = "dual_kawase";
-        #method = "kernel";
         strength = 0;
-        # deviation = 1.0;
-        # kernel = "11x11gaussian";
         background = false;
         background-frame = false;
         background-fixed = false;
@@ -38,18 +52,13 @@
       };
 
       blur-background-exclude = [
-        #"window_type = 'dock'",
-        #"window_type = 'desktop'",
-        # prevents picom from blurring the background
-        # when taking selection screenshot with `main`
-        # https://github.com/naelstrof/maim/issues/130
         "class_g = 'slop'"
         "class_g = 'Alacritty'"
         "class_g = 'Rofi'"
         "_GTK_FRAME_EXTENTS@:c"
       ];
 
-      backend = "glx";
+      backend = cfg.backend;
     };
   };
 }
