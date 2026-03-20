@@ -7,7 +7,7 @@ in {
 
     user = lib.mkOption {
       type = lib.types.str;
-      default = "cornholio";
+      default = config.my.user.name;
       description = "User to add to the docker group.";
     };
   };

@@ -3,17 +3,8 @@
 {
   imports =
     [
-      ./hosts/kuato/hardware-configuration.nix
-      ./hosts/kuato/misc-setup.nix
       ./modules
     ];
-
-  my.neovim-system.enable      = true;
-  my.xmonad.enable             = true;
-  my.fish.enable               = true;
-  my.distrobox.enable          = true;
-  my.texlive.enable            = true;
-  my.interception-tools.enable = true;
 
   # Unfree packages allowed (Zoom); sorry Richard
   nixpkgs.config.allowUnfree = true;
@@ -23,8 +14,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 5;
 
-  networking.hostName = "kuato";
-  networking.networkmanager.enable = true; 
+  networking.networkmanager.enable = true;
 
   time.timeZone = "America/New_York";
   # time.timeZone = "America/Los_Angeles";
@@ -50,7 +40,7 @@
   # Printing
   services.printing.enable = true;
 
-  users.users.cornholio= {
+  users.users.${config.my.user.name} = {
     isNormalUser = true;
     extraGroups = [
       "networkmanager"
@@ -113,7 +103,7 @@
 
   programs.nh = {
     enable = true;
-    flake = "/home/cornholio/noscon";
+    flake = "${config.my.user.homeDirectory}/noscon";
    # clean.enable = false; 
    # clean.extraArgs = "--keep-since 50d" --keep 3"
   };

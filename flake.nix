@@ -10,29 +10,10 @@
 
   outputs = { self, nixpkgs, home-manager, ... }:
   let
-    system = "x86_64-linux";
-
-    lib = nixpkgs.lib;
-
-    hm-config = {
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
-      home-manager.users.cornholio.imports = [ ./home.nix ];
-    };
-
-    allowed-unfree-packages = [
-      "zoom-us"
-    ];
-
+    mkHost = import ./lib/make-host.nix { inherit nixpkgs home-manager; };
   in {
     nixosConfigurations = {
-      kuato = lib.nixosSystem {
-        inherit system;
-        modules = [ 
-          ./configuration.nix 
-          home-manager.nixosModules.home-manager hm-config
-        ];
-      };
+      kuato = mkHost { host = "kuato"; user = "cornholio"; homeModule = ./home.nix; };
     };
   };
 }

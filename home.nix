@@ -7,9 +7,6 @@
   # Let Home Manager install and manage itself
   programs.home-manager.enable=true;
 
-  home.username = "cornholio";
-  home.homeDirectory = "/home/cornholio";
-
   home.stateVersion = "23.05";
 
   home.packages = with pkgs; [
