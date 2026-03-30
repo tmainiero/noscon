@@ -47,7 +47,7 @@ Here's a description of the most important files and directories:
   + `packages/`: custom packages
   + `dotfiles/`: configuration files and data
   + `data/`: more static data: (TODO: combine with dotfiles)
-  + `hosts/`: machines to run NixOS on; currently there is only one
+  + `hosts/`: machines to run NixOS on
 
 ## Why NixOS?
 `bespoke configuration + lazy functional programming mathematician => NixOS`
