@@ -376,8 +376,8 @@ main = do
         , ("M-<Tab>", toggleRecentNonEmptyWS)
 
         --Laptop Media Keys
-        , ("<XF86MonBrightnessUp>"   , spawn "light -A 5")
-        , ("<XF86MonBrightnessDown>" , spawn "light -U 5")
+        , ("<XF86MonBrightnessUp>"   , spawn "brightnessctl set +5%")
+        , ("<XF86MonBrightnessDown>" , spawn "brightnessctl set 5%-")
         , ("<XF86AudioMute>",         spawn "pactl set-sink-mute 0 toggle")
         , ("<XF86AudioLowerVolume>",  spawn "amixer -c 0 -q set Master 2dB-" >> spawn "bash $HOME/scripts/get-volume.sh | dzen2 -p 1 -w '200' -h '30' -x 1650 -y 30" )
         , ("<XF86AudioRaiseVolume>",  spawn "amixer -c 0 -q set Master 2dB+" >> spawn "bash $HOME/scripts/get-volume.sh | dzen2 -p 1 -w '200' -h '30' -x 1650 -y 30")
