@@ -15,6 +15,7 @@
     ./systemtray
     ./texlive
     ./udiskie
+    ./virt-manager
     ./xmonad
   ];
 }
