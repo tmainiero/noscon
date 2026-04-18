@@ -7,7 +7,7 @@
   # Let Home Manager install and manage itself
   programs.home-manager.enable=true;
 
-  home.stateVersion = "23.05";
+  home.stateVersion = "26.05";
 
   home.packages = with pkgs; [
     # Utilities
@@ -58,6 +58,7 @@
     # AI
     codex
     claude-code
+    jq # required by harness hook scripts
   ];
 
 
@@ -239,7 +240,7 @@
     };
   };
 
-  home.sessionVariables.GTK_THEME = "palenight";
+
 
   ## QT: Inherit from GTK
   qt = {

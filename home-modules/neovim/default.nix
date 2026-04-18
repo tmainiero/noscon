@@ -98,6 +98,7 @@ in
       enable = true;
       viAlias = true;
       vimAlias = true;
+      withPython3 = true;
 
       # Plugin configs come first so g: variables are set before ftplugin fires
       extraConfig = plugin-configs + "\n" + functions + settings + keybindings + plugin-keybindings;
