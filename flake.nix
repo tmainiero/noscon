@@ -13,7 +13,10 @@
   outputs = { self, nixpkgs, home-manager, claude-code, ... }:
   let
     mkHost = import ./lib/make-host.nix { inherit nixpkgs home-manager; };
-    overlays = [ claude-code.overlays.default ];
+    overlays = [
+      claude-code.overlays.default
+      (import ./overlays/pkgs.nix)
+    ];
   in {
     nixosConfigurations = {
       kuato = mkHost {

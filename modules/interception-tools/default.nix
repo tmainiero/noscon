@@ -14,7 +14,7 @@
 let
   cfg = config.my.interception-tools;
   interception-tools = pkgs.interception-tools;
-  my-plugins = pkgs.callPackage ../../packages/interception-tools-plugins { };
+  my-plugins = pkgs.my-interception-plugins;
 in {
   options.my.interception-tools = {
     enable = lib.mkEnableOption "Interception tools (key remapping)";

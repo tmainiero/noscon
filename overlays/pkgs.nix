@@ -1,5 +1,5 @@
 self: super:
 
 {
-  interception-tools-plugins.personal = ../packages/interception-tools/plugins;
+  my-interception-plugins = super.callPackage ../packages/interception-tools-plugins { };
 }
