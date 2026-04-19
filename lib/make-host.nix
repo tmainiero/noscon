@@ -1,6 +1,6 @@
 { nixpkgs, home-manager }:
 
-{ host, user, homeModule ? null }:
+{ host, user, homeModule ? null, overlays ? [] }:
 
 let
   lib = nixpkgs.lib;
@@ -24,6 +24,7 @@ lib.nixosSystem {
   system = "x86_64-linux";
   specialArgs = { inherit user; };
   modules = [
+    { nixpkgs.overlays = overlays; }
     ../hosts/${host}
     ../configuration.nix
   ] ++ hmModules;
