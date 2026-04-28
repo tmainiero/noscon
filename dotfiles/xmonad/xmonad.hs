@@ -39,6 +39,7 @@ import XMonad.Util.EZConfig (additionalKeys, additionalKeysP)
 import XMonad.Util.SpawnOnce
 import qualified XMonad.Util.Hacks as Hacks -- Dynamically resize xmobar padding for trayer
 import XMonad.Util.NamedScratchpad
+import XMonad.Util.WorkspaceCompare (filterOutWs)
 
 -- Layouts
 import XMonad.Layout.ResizableTile
@@ -349,6 +350,7 @@ eventLogHookForXmobar proc = dynamicLogIconsWithPPCustom myIconConfig xmobarPP
                         , ppSep =  "<fc=#666666> | </fc>"                                   -- Separator character
                         , ppUrgent = xmobarColor "#adc400" "" . wrap "!" "!"                -- Urgent workspace
                         , ppExtras  = [windowCount]                                         -- # of windows current workspace
+                        , ppSort    = fmap (. filterOutWs [scratchpadWorkspaceTag]) (ppSort xmobarPP)
                         }
 
 main = do
