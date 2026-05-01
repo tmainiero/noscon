@@ -1,5 +1,9 @@
-{config, pkgs, ...}:
+{config, pkgs, lib, ...}:
 
+let
+  terminal = pkgs.alacritty;
+  terminalExec = "${lib.getExe terminal} -e";
+in
 {
   imports = [./home-modules];
 
@@ -76,8 +80,18 @@
 
   xdg.enable = true;
 
+  xdg.desktopEntries.my-nvim = {
+    name = "Neovim (terminal)";
+    genericName = "Text Editor";
+    exec = "${terminalExec} env NVIM_XDG=1 nvim %F";
+    terminal = false;
+    type = "Application";
+    icon = "nvim";
+    categories = [ "Utility" "TextEditor" "Development" ];
+  };
+
   xdg.mimeApps = let
-    nvim = [ "nvim.desktop" ];
+    nvim = [ "my-nvim.desktop" ];
     textTypes = [
       "text/plain" "text/markdown" "text/x-readme" "text/english"
       "text/x-log" "text/x-makefile" "text/x-cmake"

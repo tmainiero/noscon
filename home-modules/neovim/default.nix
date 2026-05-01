@@ -83,6 +83,14 @@ let
     map (p: builtins.readFile (plug-config-dir + "/${p.configFile}"))
     (builtins.filter (p: p.configFile != null) normalized)
   );
+
+  xdgKeymaps = ''
+    if !empty($NVIM_XDG)
+      nnoremap <C-z> <Nop>
+      inoremap <C-z> <Nop>
+      vnoremap <C-z> <Nop>
+    endif
+  '';
 in
 {
   options.my.neovim = {
@@ -101,7 +109,7 @@ in
       withPython3 = true;
 
       # Plugin configs come first so g: variables are set before ftplugin fires
-      extraConfig = plugin-configs + "\n" + functions + settings + keybindings + plugin-keybindings;
+      extraConfig = plugin-configs + "\n" + functions + settings + keybindings + plugin-keybindings + xdgKeymaps;
 
       plugins = plugin-list;
     };
