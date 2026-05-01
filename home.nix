@@ -76,6 +76,32 @@
 
   xdg.enable = true;
 
+  xdg.mimeApps = let
+    nvim = [ "nvim.desktop" ];
+    textTypes = [
+      "text/plain" "text/markdown" "text/x-readme" "text/english"
+      "text/x-log" "text/x-makefile" "text/x-cmake"
+      "text/x-c" "text/x-c++" "text/x-csrc" "text/x-chdr"
+      "text/x-c++src" "text/x-c++hdr" "text/x-java" "text/x-python"
+      "text/x-script.python" "text/x-go" "text/x-rust"
+      "text/x-haskell" "text/x-lisp" "text/x-scala"
+      "text/x-shellscript" "application/x-shellscript"
+      "text/x-tex" "text/x-pascal" "text/x-tcl" "text/x-moc"
+      "text/css" "text/html" "text/xml" "text/csv" "text/tab-separated-values"
+      "text/yaml" "application/yaml" "application/x-yaml"
+      "application/json" "application/xml" "application/toml"
+      "application/x-desktop" "application/javascript"
+      "application/x-perl" "application/x-ruby"
+    ];
+    toAttrs = map (t: { name = t; value = nvim; });
+  in {
+    enable = true;
+    defaultApplications = builtins.listToAttrs (toAttrs textTypes) // {
+      "x-scheme-handler/claude-cli" = [ "claude-code-url-handler.desktop" ];
+    };
+    associations.added = builtins.listToAttrs (toAttrs textTypes);
+  };
+
   home.sessionVariables = {
     EDITOR="nvim";
     BROWSER="firefox";
