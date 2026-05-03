@@ -13,6 +13,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 5;
+  # Enable all linux magic system requests
+  boot.kernel.sysctl."kernel.sysrq" = 1;
 
   networking.networkmanager.enable = true;
 
