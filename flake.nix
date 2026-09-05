@@ -8,13 +8,16 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     claude-code.url = "github:sadjow/claude-code-nix";
     claude-code.inputs.nixpkgs.follows = "nixpkgs";
+    codex-cli.url = "github:sadjow/codex-cli-nix";
+    codex-cli.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, home-manager, claude-code, ... }:
+  outputs = { self, nixpkgs, home-manager, claude-code, codex-cli, ... }:
   let
     mkHost = import ./lib/make-host.nix { inherit nixpkgs home-manager; };
     overlays = [
       claude-code.overlays.default
+      codex-cli.overlays.default
       (import ./overlays/pkgs.nix)
     ];
   in {
